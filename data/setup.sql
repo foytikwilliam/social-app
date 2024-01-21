@@ -1,39 +1,86 @@
-drop table posts;
-drop table threads;
-drop table sessions;
-drop table users;
+DROP TABLE IF EXISTS likes;
+DROP TABLE IF EXISTS ratings;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS threads;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS gyms;
+DROP TABLE IF EXISTS users;
 
-
-create table users (
-  id         serial primary key,
-  uuid       varchar(64) not null unique,
-  name       varchar(255),
-  email      varchar(255) not null unique,
-  password   varchar(255) not null,
-  created_at timestamp not null   
+CREATE TABLE users (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  name       VARCHAR(255),
+  email      VARCHAR(255) NOT NULL UNIQUE,
+  password   VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL
 );
 
-create table sessions (
-  id         serial primary key,
-  uuid       varchar(64) not null unique,
-  email      varchar(255),
-  user_id    integer references users(id),
-  created_at timestamp not null   
+CREATE TABLE gyms (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  name       VARCHAR(255),
+  address    VARCHAR(255),
+  city       VARCHAR(255),
+  state      VARCHAR(255),
+  zipcode    VARCHAR(20),
+  county     VARCHAR(255),
+  phone      VARCHAR(20),
+  email      VARCHAR(255),
+  website    VARCHAR(255),
+  created_at TIMESTAMP NOT NULL
 );
 
-create table threads (
-  id         serial primary key,
-  uuid       varchar(64) not null unique,
-  topic      text,
-  user_id    integer references users(id),
-  created_at timestamp not null       
+CREATE TABLE sessions (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  email      VARCHAR(255),
+  user_id    INTEGER REFERENCES users(id),
+  created_at TIMESTAMP NOT NULL
 );
 
-create table posts (
-  id         serial primary key,
-  uuid       varchar(64) not null unique,
-  body       text,
-  user_id    integer references users(id),
-  thread_id  integer references threads(id),
-  created_at timestamp not null  
+CREATE TABLE threads (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  topic      TEXT,
+  user_id    INTEGER REFERENCES users(id),
+  created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE posts (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  body       TEXT,
+  user_id    INTEGER REFERENCES users(id),
+  thread_id  INTEGER REFERENCES threads(id),
+  created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE reviews (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  body       TEXT,
+  user_id    INTEGER REFERENCES users(id),
+  gym_id     INTEGER REFERENCES gyms(id),
+  rating     INTEGER,
+  date       TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE ratings (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  user_id    INTEGER REFERENCES users(id),
+  gym_id     INTEGER REFERENCES gyms(id),
+  rating     INTEGER,
+  created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE likes (
+  id         SERIAL PRIMARY KEY,
+  uuid       VARCHAR(64) NOT NULL UNIQUE,
+  user_id    INTEGER REFERENCES users(id),
+  gym_id     INTEGER REFERENCES gyms(id),
+  post_id    INTEGER REFERENCES posts(id),
+  created_at TIMESTAMP NOT NULL
 );
