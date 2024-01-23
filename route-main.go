@@ -8,16 +8,18 @@ import (
 
 // IndexHandler is a simple handler for the index route
 func index(writer http.ResponseWriter, request *http.Request) {
-	threads, err := data.Threads()
+	gyms, err := data.GetGyms()
 	if err != nil {
-		error_message(writer, request, "Cannot get threads")
+		error_message(writer, request, "Cannot get gyms")
 	} else {
 		_, err := session(writer, request)
 		if err != nil {
 			log.Println("Error checking session:", err)
 			generateHTML(writer, nil, "layout", "public.navbar", "index")
 		} else {
-			generateHTML(writer, threads, "layout", "private.navbar", "index")
+			log.Println("Gyms data:", gyms)
+			generateHTML(writer, gyms, "layout", "private.navbar", "index")
+
 		}
 	}
 }
