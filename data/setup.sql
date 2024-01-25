@@ -63,6 +63,14 @@ CREATE TABLE reviews (
   user_id    INTEGER REFERENCES users(id),
   gym_id     INTEGER REFERENCES gyms(id),
   rating     INTEGER,
+  location   INTEGER,
+  facilities INTEGER,
+  equipment  INTEGER,
+  dumbells   INTEGER,
+  internet   INTEGER,
+  happiness  INTEGER,
+  clean      INTEGER,
+  trainers   INTEGER,
   date       TIMESTAMP NOT NULL,
   created_at TIMESTAMP NOT NULL
 );
