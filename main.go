@@ -40,7 +40,10 @@ func main() {
 	mux.HandleFunc("/signup_account", signupAccount)
 	mux.HandleFunc("/authenticate", authenticate)
 
+	mux.HandleFunc("/gym/create", createReview)
 	mux.HandleFunc("/gym/read", readGymReview)
+	mux.HandleFunc("/gym/post", postReview)
+	mux.HandleFunc("/gym/new", newReview)
 
 	server := &http.Server{
 		Addr:    "0.0.0.0:8080",

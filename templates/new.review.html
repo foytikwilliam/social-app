@@ -1,0 +1,18 @@
+{{ define "content" }}
+
+<form role="form" action="/gym/create" method="post">
+  <div class="lead">Write a reiew for this gym</div>
+
+  <!-- Assuming you have a hidden input field to store the gym ID or UUID -->
+  <input type="hidden" name="gym_uuid" value="{{ .Gym.UUID }}">
+
+  <div class="form-group">
+    <!-- Assuming you have a textarea for the review body -->
+    <textarea class="form-control" name="body" id="body" placeholder="Write your review here" rows="4"></textarea>
+    <br/>
+    <br/>
+    <button class="btn btn-lg btn-primary pull-right" type="submit">Submit Reiew</button>
+  </div>
+</form>
+
+{{ end }}
