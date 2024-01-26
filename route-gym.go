@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"social-app/data"
+	"strconv"
 )
 
 type PageData struct {
-	Gyms    []data.Gym
-	Reviews []data.Review
+	Gyms          []data.Gym
+	Reviews       []data.Review
+	RatingFields  []string
+	RatingOptions []int
 }
 
 func createReview(writer http.ResponseWriter, request *http.Request) {
@@ -50,8 +53,19 @@ func createReview(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// Create the review for the user and the specified gym
-	if _, err := user.CreateReview(gym, body); err != nil {
+	// Get ratings from the form
+	locationRating := parseRating(request.PostFormValue("Location"))
+	facilitiesRating := parseRating(request.PostFormValue("Facilities"))
+	equipmentRating := parseRating(request.PostFormValue("Equipment"))
+	dumbellsRating := parseRating(request.PostFormValue("Dumbells"))
+	internetRating := parseRating(request.PostFormValue("Internet"))
+	happinessRating := parseRating(request.PostFormValue("Happiness"))
+	cleanRating := parseRating(request.PostFormValue("Clean"))
+	trainersRating := parseRating(request.PostFormValue("Trainers"))
+	// Add similar lines for other rating categories
+
+	// Create the review for the user and the specified gym with ratings
+	if _, err := user.CreateReview(gym, body, locationRating, facilitiesRating, equipmentRating, dumbellsRating, internetRating, happinessRating, cleanRating, trainersRating /* Add other ratings here */); err != nil {
 		fmt.Println(err, "Cannot create review")
 		// Handle the error accordingly
 		// You might want to display an error message or redirect the user
@@ -88,7 +102,6 @@ func readGymReview(writer http.ResponseWriter, request *http.Request) {
 		Reviews: reviews,
 	}
 	fmt.Printf("Number of Reviews: %d\n", len(pageData.Reviews))
-
 	fmt.Println("Gym:", gym)
 	fmt.Println("Review:", reviews)
 	if err != nil {
@@ -133,9 +146,9 @@ func postReview(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	// Get the review body from the form
-	body := request.PostFormValue("body")
+	body := request.FormValue("body")
 
-	gymUUID := request.FormValue("uuid")
+	gymUUID := request.PostFormValue("uuid")
 	// Assuming you have a function to get the Gym by UUID
 	gym, err := data.GymByUUID(gymUUID)
 	if err != nil {
@@ -145,8 +158,23 @@ func postReview(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	var ratings []int
+	ratingFields := []string{"Location", "Facilities", "Equipment", "Dumbells", "Internet", "Happiness", "Clean", "Trainers"}
+
+	for _, field := range ratingFields {
+		ratingStr := request.FormValue(field)
+		rating, err := strconv.Atoi(ratingStr)
+		if err != nil {
+			fmt.Println(err, "Error converting rating to integer")
+			// Handle the error accordingly
+			// You might want to display an error message or redirect the user
+			return
+		}
+		ratings = append(ratings, rating)
+	}
 	// Create the review for the user
-	if _, err := user.CreateReview(gym, body); err != nil {
+	// Create the review for the user
+	if _, err := user.CreateReview(gym, body, ratings...); err != nil {
 		fmt.Println(err, "Cannot create review")
 		// Handle the error accordingly
 		// You might want to display an error message or redirect the user
@@ -160,10 +188,37 @@ func postReview(writer http.ResponseWriter, request *http.Request) {
 }
 
 func newReview(writer http.ResponseWriter, request *http.Request) {
+
 	_, err := session(writer, request)
 	if err != nil {
 		http.Redirect(writer, request, "/login", http.StatusFound)
 	} else {
-		generateHTML(writer, nil, "layout", "private.navbar", "new.review")
+
+		vals := request.URL.Query()
+		gymUUID := vals.Get("id")
+
+		if gymUUID == "" {
+			error_message(writer, request, "Missing gym UUID parameter")
+			return
+		}
+
+		// Assuming you have a function to get the Gym by UUID
+		gym, err := data.GymByUUID(gymUUID)
+		if err != nil {
+			// Handle error (unable to fetch gym by UUID)
+			error_message(writer, request, "Invalid gym UUID: "+err.Error())
+			return
+		}
+		pageData := PageData{
+			Gyms: []data.Gym{gym},
+			// ... other data ...
+			RatingFields: []string{"Location", "Facilities", "Equipment", "Dumbells", "Internet", "Happiness", "Clean", "Trainers"},
+			/* ... other fields ... */
+			RatingOptions: []int{1, 2, 3, 4, 5},
+
+			// ... other fields ...
+		}
+
+		generateHTML(writer, pageData, "layout", "private.navbar", "new.review")
 	}
 }

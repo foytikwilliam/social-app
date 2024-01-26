@@ -33,8 +33,6 @@ type Review struct {
 	Dumbells   int
 	Internet   int
 	Happiness  int
-	NumBench   int
-	NumSquat   int
 	Clean      int
 	Trainers   int
 	Date       time.Time
@@ -109,18 +107,24 @@ func (gym *Gym) Reviews() (reviews []Review, err error) {
 	return
 }
 
-func (user *User) CreateReview(conv Gym, body string, ratings ...int) (review Review, err error) {
-	// Assuming gym_id is conv.Id
-	statement := "INSERT INTO reviews (uuid, body, user_id, gym_id, rating, location, facilities, equipment, dumbells, internet, happiness, num_bench, num_squat, clean, trainers, date, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING id, uuid, body, user_id, gym_id, rating, location, facilities, equipment, dumbells, internet, happiness, num_bench, num_squat, clean, trainers, date, created_at"
+func (user *User) CreateReview(conv Gym, body string, ratings ...int) (review Review, err error) { // Assuming gym_id is conv.Id
+	statement := "INSERT INTO reviews (uuid, body, user_id, gym_id, location, facilities, equipment, dumbells, internet, happiness, clean, trainers, date, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id, uuid, body, user_id, gym_id, location, facilities, equipment, dumbells, internet, happiness, clean, trainers, date, created_at"
 	stmt, err := Db.Prepare(statement)
 	if err != nil {
 		return
 	}
 	defer stmt.Close()
 
+	// Assuming you have the date value
+	date := time.Now()
+
 	// Use conv.Id as the gym_id
-	err = stmt.QueryRow(createUUID(), body, user.Id, conv.Id, append([]interface{}{ratings...}, time.Now(), time.Now())...).
-		Scan(&review.Id, &review.Uuid, &review.Body, &review.UserId, &review.GymId, &review.Rating, &review.Location, &review.Facilities, &review.Equipment, &review.Dumbells, &review.Internet, &review.Happiness, &review.NumBench, &review.NumSquat, &review.Clean, &review.Trainers, &review.Date, &review.CreatedAt)
+	err = stmt.QueryRow(createUUID(), body, user.Id, conv.Id,
+		ratings[0], ratings[1], ratings[2], ratings[3], ratings[4], ratings[5], ratings[6], ratings[7], date, time.Now()).
+		Scan(&review.Id, &review.Uuid, &review.Body, &review.UserId, &review.GymId,
+			&review.Location, &review.Facilities, &review.Equipment, &review.Dumbells,
+			&review.Internet, &review.Happiness, &review.Clean, &review.Trainers,
+			&review.Date, &review.CreatedAt)
 
 	return
 }
@@ -133,7 +137,12 @@ func ReviewByUUID(uuid string) (conv Review, err error) {
 }
 
 func ReviewsByGymID(GymId int) ([]Review, error) {
-	rows, err := Db.Query("SELECT id, uuid, body, user_id, gym_id, rating, date, created_at FROM reviews WHERE gym_id = $1", GymId)
+	rows, err := Db.Query("SELECT id, uuid, body, user_id, gym_id, "+
+		"location, facilities, equipment, dumbells, "+
+		"internet, happiness, clean, trainers, "+
+		"date, created_at FROM reviews WHERE gym_id = $1", GymId)
+	// rest of the function
+
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +152,10 @@ func ReviewsByGymID(GymId int) ([]Review, error) {
 
 	for rows.Next() {
 		var review Review
-		if err := rows.Scan(&review.Id, &review.Uuid, &review.Body, &review.UserId, &review.GymId, &review.Rating, &review.Date, &review.CreatedAt); err != nil {
+		if err := rows.Scan(&review.Id, &review.Uuid, &review.Body, &review.UserId, &review.GymId,
+			&review.Location, &review.Facilities, &review.Equipment, &review.Dumbells,
+			&review.Internet, &review.Happiness, &review.Clean, &review.Trainers,
+			&review.Date, &review.CreatedAt); err != nil {
 			return nil, err
 		}
 		reviews = append(reviews, review)

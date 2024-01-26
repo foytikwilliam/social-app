@@ -2,35 +2,13 @@ package main
 
 import (
 	"net/http"
-	"net/url"
-	"strings"
 )
 
 func main() {
 
 	mux := http.NewServeMux()
-	files := http.FileServer(http.Dir("/public"))
-	mux.Handle("/static/", func() http.Handler {
-		var prefix string = "/static/"
-		if prefix == "" {
-			return files
-		}
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			p := strings.TrimPrefix(r.URL.Path, prefix)
-			rp := strings.TrimPrefix(r.URL.RawPath, prefix)
-			if len(p) < len(r.URL.Path) && (r.URL.RawPath == "" || len(rp) < len(r.URL.RawPath)) {
-				r2 := new(http.Request)
-				*r2 = *r
-				r2.URL = new(url.URL)
-				*r2.URL = *r.URL
-				r2.URL.Path = p
-				r2.URL.RawPath = rp
-				files.ServeHTTP(w, r2)
-			} else {
-				http.NotFound(w, r)
-			}
-		})
-	}())
+	files := http.FileServer(http.Dir("public"))
+	mux.Handle("/static/", http.StripPrefix("/static/", files))
 
 	mux.HandleFunc("/err", err)
 	mux.HandleFunc("/", index)

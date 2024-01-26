@@ -1,0 +1,21 @@
+{
+  "name": "social-app",
+  "version": "1.0.0",
+  "description": "A social app",
+  "main": "index.js",
+  "scripts": {
+    
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "postcss public/css/styles.css -o public/css/tailwind.css"},
+    
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "postcss": "^8.4.33",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.0.0",
+    "postcss-preset-env": "^9.3.0",
+    "tailwindcss": "^3.4.1"
+  }
+}
