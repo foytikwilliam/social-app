@@ -1,18 +1,38 @@
 {{ define "content" }}
+{{ range .Gyms }}
+  <form role="form" action="/gym/post" method="post">
+    <div class="lead">Write a review for this gym</div>
 
-<form role="form" action="/gym/create" method="post">
-  <div class="lead">Write a reiew for this gym</div>
+    <!-- Assuming you have a hidden input field to store the gym ID or UUID -->
+    <input type="hidden" name="uuid" value="{{ .Uuid }}">
+  {{ end }}
 
-  <!-- Assuming you have a hidden input field to store the gym ID or UUID -->
-  <input type="hidden" name="gym_uuid" value="{{ .Gym.UUID }}">
+    {{ range .RatingFields }}
+      <label>{{ . }}:</label>
+      <label class="radio-inline">
+        <input type="radio" name="{{ . }}" value="1"> 1
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="{{ . }}" value="2"> 2
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="{{ . }}" value="3"> 3
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="{{ . }}" value="4"> 4
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="{{ . }}" value="5"> 5
+      </label>
+      <br/>
+    {{ end }}
 
-  <div class="form-group">
-    <!-- Assuming you have a textarea for the review body -->
-    <textarea class="form-control" name="body" id="body" placeholder="Write your review here" rows="4"></textarea>
-    <br/>
-    <br/>
-    <button class="btn btn-lg btn-primary pull-right" type="submit">Submit Reiew</button>
-  </div>
-</form>
-
+    <div class="form-group">
+      <!-- Assuming you have a textarea for the review body -->
+      <textarea class="form-control" name="body" id="body" placeholder="Discuss your personal experience on this gym." rows="4"></textarea>
+      <br/>
+      <br/>
+      <button class="btn btn-lg btn-primary pull-right" type="submit">Submit Review</button>
+    </div>
+  </form>
 {{ end }}

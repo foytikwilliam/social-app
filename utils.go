@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"social-app/data"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -55,4 +56,20 @@ func parseTemplateFiles(filenames ...string) (t *template.Template) {
 	}
 	t = template.Must(t.ParseFiles(files...))
 	return
+}
+
+func parseRating(value string) int {
+	// Check if the string is empty
+	if value == "" {
+		// Handle the empty string case; return a default value, or log it
+		return 0
+	}
+
+	// Parse the value to an integer; handle errors if needed
+	rating, err := strconv.Atoi(value)
+	if err != nil {
+		// Handle the error, return a default value, or log it
+		return 0
+	}
+	return rating
 }
