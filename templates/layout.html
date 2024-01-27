@@ -9,14 +9,13 @@
     <title>ChitChat</title>
     <link rel="stylesheet" href="/static/css/tailwind.css">
   </head>
-  <body>
+  <div>
     {{template "navbar" .}}
+  </div>
+  
+        <body>
+  {{ template "content" . }}
 
-    <div class="container">
-      
-      {{ template "content" . }}
-      
-    </div> <!-- /container -->
     
     <script src="/static/js/jquery-2.1.1.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
